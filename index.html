@@ -122,9 +122,11 @@ async function loadCalendar() {
 
     const teams = summary.split("-").map(s => s.trim());
 
-    const isHome = teams.length > 1
-      ? teams[0].includes("The Bears")
-      : false;
+    let isHome = false;
+
+    if (teams.length > 1) {
+      isHome = teams[0].includes("The Bears");
+    }
 
     return {
       summary,
@@ -137,7 +139,7 @@ async function loadCalendar() {
   parsedEvents.push({
     summary: "Landelijke Beeball Dag – Hoofddorp",
     date: new Date("2026-06-07T10:00:00"),
-    isHome: true,
+    isHome: false,
     location: "Sportpark 21, Nieuwe Molenaarslaan 10, 2134 AS Hoofddorp"
   });
 
@@ -146,7 +148,6 @@ async function loadCalendar() {
   const now = new Date();
   const nextGame = parsedEvents.find(e => e.date > now);
 
-  // NEXT GAME BOX
   if (nextGame) {
     document.getElementById("next").innerHTML = `
       <div class="next">
@@ -172,8 +173,13 @@ async function loadCalendar() {
 
     const isNext = nextGame && item.date.getTime() === nextGame.date.getTime();
 
-    const mapsLink = "https://www.google.com/maps/search/?api=1&query=" +
-      encodeURIComponent(item.location || item.summary);
+    const mapsQuery = item.location
+      ? item.location
+      : item.summary;
+
+    const mapsLink =
+      "https://www.google.com/maps/search/?api=1&query=" +
+      encodeURIComponent(mapsQuery);
 
     const div = document.createElement("div");
     div.className = "wedstrijd" + (isNext ? " highlight" : "");
@@ -202,7 +208,11 @@ async function loadCalendar() {
           <div class="loc" onclick="window.open('${mapsLink}', '_blank')">
             📍 ${item.location}
           </div>
-        ` : ""}
+        ` : `
+          <div class="loc" onclick="window.open('${mapsLink}', '_blank')">
+            📍 Open in Google Maps
+          </div>
+        `}
       </div>
     `;
 
