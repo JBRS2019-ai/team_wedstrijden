@@ -120,7 +120,11 @@ async function loadCalendar() {
 
     const summary = e.summary.replaceAll("MBeeBallU12-1", "").trim();
 
-    const isHome = summary.includes("The Bears");
+    const teams = summary.split("-").map(s => s.trim());
+
+    const isHome = teams.length > 1
+      ? teams[0].includes("The Bears")
+      : false;
 
     return {
       summary,
