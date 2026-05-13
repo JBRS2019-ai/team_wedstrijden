@@ -58,28 +58,39 @@ async function loadCalendar() {
 
   events.forEach(event => {
 
-    const e = new ICAL.Event(event);
+    const parsedEvents = events.map(ev => {
+  const e = new ICAL.Event(ev);
 
-    const date = e.startDate.toJSDate();
+  return {
+    summary: e.summary
+      .replaceAll("MBeeBallU12-1", "")
+      .trim(),
+    date: e.startDate.toJSDate()
+  };
+});
 
-    const div = document.createElement("div");
+parsedEvents.sort((a, b) => a.date - b.date);
 
-    div.className = "wedstrijd";
+parsedEvents.forEach(item => {
 
-    div.innerHTML = `
-      <div class="datum">
-        ${date.toLocaleDateString("nl-NL")} —
-        ${date.toLocaleTimeString("nl-NL", {
-          hour: "2-digit",
-          minute: "2-digit"
-        })}
-      </div>
+  const div = document.createElement("div");
 
-      <div>${e.summary}</div>
-    `;
+  div.className = "wedstrijd";
 
-    container.appendChild(div);
-  });
+  div.innerHTML = `
+    <div class="datum">
+      ${item.date.toLocaleDateString("nl-NL")} —
+      ${item.date.toLocaleTimeString("nl-NL", {
+        hour: "2-digit",
+        minute: "2-digit"
+      })}
+    </div>
+
+    <div>${item.summary}</div>
+  `;
+
+  container.appendChild(div);
+});
 }
 
 loadCalendar();
