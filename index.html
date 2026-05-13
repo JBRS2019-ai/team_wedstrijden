@@ -401,6 +401,14 @@
       background: #fafaf7;
       font-size: 13px;
     }
+    .admin-header {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
     .admin-row {
       display: flex;
       align-items: center;
@@ -586,7 +594,7 @@
 // ═══════════════════════════════════════════════════════════════
 // CONFIGURATIE — vul hier de URL van je Apps Script Web App in
 // ═══════════════════════════════════════════════════════════════
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSq3txRAtnmWKN573wDBl-EGRtglUzEWmFDO7kwy5EgklsWBSeA2CMCjdIq8FMA_4v9Q/exec";
+const APPS_SCRIPT_URL = "VUL_HIER_JE_APPS_SCRIPT_URL_IN";
 
 const ICAL_URL = "https://corsproxy.io/?https://api.foys.io/competition/public-api/v1/teams/1ee7d4f7-92fc-40ac-b0c1-f744d3b7d7f6/ics";
 
@@ -766,8 +774,12 @@ function renderUserbar() {
   }
   if (state.user.isAdmin) {
     bar.className = "userbar admin";
+    const hasKids = state.user.kinderen && state.user.kinderen.length > 0;
+    const subText = hasKids
+      ? `Admin · ${state.user.kinderen.join(" · ")}`
+      : "Coach · Admin-weergave";
     bar.innerHTML = `
-      <div class="who">${state.user.naam} <small>Coach · Admin-weergave</small></div>
+      <div class="who">${state.user.naam} <small>${subText}</small></div>
       <button onclick="logout()">Uitloggen</button>
     `;
     return;
@@ -839,10 +851,16 @@ function renderMatches() {
       : `<span class="badge away">✈ Uit</span>`;
 
     let attendanceBlock = "";
-    if (state.user && !state.user.isAdmin) {
-      attendanceBlock = renderParentAttendance(m, mId);
-    } else if (state.user && state.user.isAdmin) {
-      attendanceBlock = renderAdminAttendance(m, mId);
+    if (state.user) {
+      const hasOwnKids = state.user.kinderen && state.user.kinderen.length > 0;
+      // Iedereen met eigen kinderen krijgt invul-knoppen
+      if (hasOwnKids) {
+        attendanceBlock += renderParentAttendance(m, mId);
+      }
+      // Admin krijgt daarnaast het team-overzicht
+      if (state.user.isAdmin) {
+        attendanceBlock += renderAdminAttendance(m, mId);
+      }
     }
 
     html += `
@@ -912,6 +930,7 @@ function renderAdminAttendance(match, mId) {
 
   return `
     <div class="admin-summary">
+      <div class="admin-header">Team-overzicht</div>
       <div class="admin-row yes">
         <span class="dot"></span>
         <span class="count">${yes.length}</span>
