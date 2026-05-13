@@ -2,225 +2,1001 @@
 <html lang="nl">
 <head>
   <meta charset="UTF-8">
-  <title>Wedstrijdschema</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>The Bears · Wedstrijdschema</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/ical.js/build/ical.min.js"></script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 16px;
-      background: #f4f6f8;
+    :root {
+      --bg: #f5f1ea;
+      --paper: #ffffff;
+      --ink: #1a1f2e;
+      --ink-soft: #4a5160;
+      --muted: #8a8f9b;
+      --line: #e8e2d6;
+      --accent: #c8202a;       /* honkbal-rood */
+      --accent-soft: #fde8e9;
+      --navy: #1a3a5c;         /* team-navy */
+      --navy-soft: #e6ecf3;
+      --green: #2b7a3d;
+      --green-soft: #e3f2e7;
+      --amber: #c48a1a;
+      --amber-soft: #fdf2dd;
+      --shadow: 0 2px 12px rgba(26, 31, 46, 0.06);
+      --shadow-lg: 0 8px 32px rgba(26, 31, 46, 0.12);
+      --radius: 16px;
     }
 
-    h1 {
-      text-align: center;
-      margin-bottom: 10px;
-    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
-    .next {
-      background: #1f6feb;
-      color: white;
-      padding: 14px;
-      border-radius: 14px;
-      margin-bottom: 18px;
-    }
-
-    .next small {
-      opacity: 0.8;
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    .wedstrijd {
-      background: white;
-      border-radius: 14px;
-      padding: 14px 16px;
-      margin-bottom: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      display: flex;
-      gap: 12px;
-    }
-
-    .datebox {
-      min-width: 70px;
-      text-align: center;
-      background: #eef2ff;
-      border-radius: 10px;
-      padding: 8px;
-      font-weight: bold;
-      color: #2b3a67;
-    }
-
-    .day { font-size: 18px; }
-    .month { font-size: 12px; text-transform: uppercase; }
-
-    .content { flex: 1; }
-
-    .time {
-      font-weight: bold;
-      margin-bottom: 4px;
-    }
-
-    .title {
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', system-ui, sans-serif;
       font-size: 15px;
-      margin-bottom: 4px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .badge {
-      display: inline-block;
+    body {
+      background-image:
+        radial-gradient(circle at 20% 0%, rgba(200,32,42,0.04) 0%, transparent 50%),
+        radial-gradient(circle at 80% 100%, rgba(26,58,92,0.04) 0%, transparent 50%);
+      min-height: 100vh;
+      padding: 16px 14px 80px;
+      padding-top: max(16px, env(safe-area-inset-top));
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding: 4px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      background: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 1px;
+      box-shadow: var(--shadow);
+      position: relative;
+    }
+    .logo::after {
+      content: '';
+      position: absolute;
+      inset: 4px;
+      border-radius: 50%;
+      border: 1.5px dashed rgba(255,255,255,0.4);
+    }
+
+    .header-text h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 1.5px;
+      margin: 0;
+      line-height: 1;
+      color: var(--ink);
+    }
+    .header-text .sub {
       font-size: 12px;
-      padding: 2px 8px;
-      border-radius: 999px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
       margin-top: 4px;
     }
 
-    .home { background: #e6f7ec; color: #1b7f3a; }
-    .away { background: #ffecec; color: #b42318; }
+    /* ===== USER BAR ===== */
+    .userbar {
+      background: var(--paper);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid var(--line);
+    }
+    .userbar.guest {
+      background: linear-gradient(135deg, var(--navy) 0%, #244a72 100%);
+      color: white;
+      border: none;
+    }
+    .userbar.admin {
+      background: linear-gradient(135deg, #1a1f2e 0%, #2c3447 100%);
+      color: white;
+      border: none;
+    }
+    .userbar .who {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    .userbar .who small {
+      display: block;
+      font-weight: 400;
+      font-size: 11px;
+      opacity: 0.75;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+    .userbar button {
+      background: rgba(255,255,255,0.15);
+      color: inherit;
+      border: 1px solid rgba(255,255,255,0.25);
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+    .userbar:not(.guest):not(.admin) button {
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid transparent;
+    }
+    .userbar button:active { opacity: 0.7; }
+
+    /* ===== NEXT MATCH HERO ===== */
+    .next-hero {
+      background: linear-gradient(135deg, var(--accent) 0%, #a01821 100%);
+      color: white;
+      border-radius: 20px;
+      padding: 18px 18px 20px;
+      margin-bottom: 22px;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+    .next-hero::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 140px;
+      height: 140px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+    .next-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -30px;
+      left: -30px;
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    .next-hero .label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      opacity: 0.85;
+      margin-bottom: 8px;
+      position: relative;
+    }
+    .next-hero .match-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      line-height: 1.1;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .next-hero .match-meta {
+      display: flex;
+      gap: 14px;
+      font-size: 13px;
+      opacity: 0.95;
+      position: relative;
+      flex-wrap: wrap;
+    }
+    .next-hero .match-meta span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      letter-spacing: 1.5px;
+      color: var(--ink-soft);
+      margin: 24px 4px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+    }
+
+    /* ===== MATCH CARD ===== */
+    .match {
+      background: var(--paper);
+      border-radius: var(--radius);
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    .match.highlight {
+      border: 2px solid var(--accent);
+      box-shadow: 0 4px 20px rgba(200,32,42,0.15);
+    }
+
+    .match-head {
+      display: flex;
+      gap: 14px;
+      padding: 14px;
+      align-items: flex-start;
+    }
+
+    .datebox {
+      min-width: 60px;
+      text-align: center;
+      background: var(--navy-soft);
+      border-radius: 12px;
+      padding: 8px 6px;
+      flex-shrink: 0;
+    }
+    .datebox .day {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      line-height: 1;
+      color: var(--navy);
+    }
+    .datebox .month {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--navy);
+      margin-top: 2px;
+      font-weight: 600;
+    }
+    .datebox .weekday {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+
+    .match-info { flex: 1; min-width: 0; }
+    .match-info .time {
+      font-size: 13px;
+      color: var(--ink-soft);
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+    .match-info .title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .badge.home { background: var(--green-soft); color: var(--green); }
+    .badge.away { background: var(--accent-soft); color: var(--accent); }
+    .badge.special { background: var(--amber-soft); color: var(--amber); }
 
     .loc {
       font-size: 12px;
-      color: #666;
-      margin-top: 6px;
+      color: var(--muted);
+      margin-top: 8px;
       cursor: pointer;
+      display: inline-block;
+      text-decoration: none;
+    }
+    .loc:active { color: var(--ink); }
+
+    /* ===== ATTENDANCE ROW ===== */
+    .attendance {
+      border-top: 1px solid var(--line);
+      padding: 12px 14px;
+      background: #fafaf7;
+    }
+    .att-child {
+      margin-bottom: 10px;
+    }
+    .att-child:last-child { margin-bottom: 0; }
+
+    .att-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      margin-bottom: 6px;
+    }
+    .att-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 6px;
+    }
+    .att-btn {
+      padding: 9px 4px;
+      border-radius: 10px;
+      border: 1.5px solid var(--line);
+      background: var(--paper);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-soft);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .att-btn:active { transform: scale(0.96); }
+    .att-btn.active.yes {
+      background: var(--green);
+      border-color: var(--green);
+      color: white;
+    }
+    .att-btn.active.no {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .att-btn.active.maybe {
+      background: var(--amber);
+      border-color: var(--amber);
+      color: white;
+    }
+    .att-btn.saving {
+      opacity: 0.5;
+      pointer-events: none;
     }
 
-    .highlight {
-      border: 2px solid #1f6feb;
+    /* ===== ADMIN SUMMARY ===== */
+    .admin-summary {
+      border-top: 1px solid var(--line);
+      padding: 12px 14px;
+      background: #fafaf7;
+      font-size: 13px;
+    }
+    .admin-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+    }
+    .admin-row .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .admin-row.yes .dot { background: var(--green); }
+    .admin-row.no .dot { background: var(--accent); }
+    .admin-row.maybe .dot { background: var(--amber); }
+    .admin-row.none .dot { background: var(--muted); }
+    .admin-row .names {
+      color: var(--ink-soft);
+      font-size: 12px;
+    }
+    .admin-row .count {
+      font-weight: 700;
+      color: var(--ink);
+      min-width: 22px;
+    }
+
+    /* ===== LOGIN MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26,31,46,0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 100;
+    }
+    .modal-overlay.show { display: flex; }
+    .modal {
+      background: var(--paper);
+      border-radius: 20px;
+      padding: 24px 20px;
+      max-width: 360px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+    }
+    .modal h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      letter-spacing: 1px;
+      margin: 0 0 6px;
+    }
+    .modal p {
+      font-size: 13px;
+      color: var(--ink-soft);
+      margin: 0 0 16px;
+    }
+    .modal input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--line);
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: inherit;
+      letter-spacing: 2px;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      background: #fafaf7;
+    }
+    .modal input:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: white;
+    }
+    .modal button {
+      width: 100%;
+      padding: 13px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+    }
+    .modal button:active { opacity: 0.85; }
+    .modal .error {
+      color: var(--accent);
+      font-size: 12px;
+      margin-top: 10px;
+      text-align: center;
+      min-height: 16px;
+    }
+    .modal .hint {
+      margin-top: 14px;
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.4;
+    }
+
+    /* ===== LOADING / EMPTY ===== */
+    .loading, .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .spinner {
+      display: inline-block;
+      width: 22px; height: 22px;
+      border: 2.5px solid var(--line);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== TOAST ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--ink);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 500;
+      box-shadow: var(--shadow-lg);
+      z-index: 200;
+      transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      pointer-events: none;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    /* desktop tweaks */
+    @media (min-width: 720px) {
+      body { padding: 28px 20px 80px; }
+      .next-hero { padding: 24px; }
+      .next-hero .match-title { font-size: 32px; }
+      .att-btn { font-size: 13px; padding: 11px 8px; }
     }
   </style>
 </head>
 
 <body>
+<div class="container">
 
-<h1>Wedstrijdschema</h1>
+  <header class="header">
+    <div class="logo">B</div>
+    <div class="header-text">
+      <h1>The Bears</h1>
+      <div class="sub">BeeBall U12 · Schema</div>
+    </div>
+  </header>
 
-<div id="next"></div>
-<div id="wedstrijden"></div>
+  <div id="userbar"></div>
+  <div id="next"></div>
+  <div id="matches"><div class="loading"><div class="spinner"></div><div>Wedstrijden laden…</div></div></div>
+
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <h2>Login</h2>
+    <p>Voer je persoonlijke code in om aanwezigheid door te geven.</p>
+    <input type="text" id="pinInput" placeholder="JOUW CODE" autocomplete="off" autocapitalize="characters" maxlength="20">
+    <button id="pinSubmit">Inloggen</button>
+    <div class="error" id="pinError"></div>
+    <div class="hint">Code vergeten? App de coach even.<br>Je hoeft maar één keer in te loggen op dit apparaat.</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
+// ═══════════════════════════════════════════════════════════════
+// CONFIGURATIE — vul hier de URL van je Apps Script Web App in
+// ═══════════════════════════════════════════════════════════════
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSq3txRAtnmWKN573wDBl-EGRtglUzEWmFDO7kwy5EgklsWBSeA2CMCjdIq8FMA_4v9Q/exec";
+
+const ICAL_URL = "https://corsproxy.io/?https://api.foys.io/competition/public-api/v1/teams/1ee7d4f7-92fc-40ac-b0c1-f744d3b7d7f6/ics";
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let state = {
+  pin: localStorage.getItem("beeball_pin") || null,
+  user: null,                 // {naam, kinderen:[], isAdmin}
+  matches: [],                // alle wedstrijden
+  attendance: {},             // {matchId: {childName: status}}
+  allChildren: [],            // voor admin: alle kinderen in team
+};
+
+// ═══════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════
+function matchId(m) {
+  // stabiele ID: datum-ISO + eerste 30 chars van titel
+  return m.date.toISOString().slice(0,16) + "::" + m.summary.slice(0,30);
+}
+
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+async function api(action, payload = {}) {
+  if (!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes("VUL_HIER")) {
+    console.warn("Apps Script URL nog niet ingesteld");
+    return { ok: false, error: "Backend niet geconfigureerd" };
+  }
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: "POST",
+      // text/plain om CORS-preflight te vermijden bij Apps Script
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({ action, ...payload }),
+    });
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    return { ok: false, error: String(err) };
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOAD CALENDAR
+// ═══════════════════════════════════════════════════════════════
 async function loadCalendar() {
-
-  const url =
-    "https://corsproxy.io/?https://api.foys.io/competition/public-api/v1/teams/1ee7d4f7-92fc-40ac-b0c1-f744d3b7d7f6/ics";
-
-  const response = await fetch(url);
+  const response = await fetch(ICAL_URL);
   const icsText = await response.text();
-
   const jcalData = ICAL.parse(icsText);
   const comp = new ICAL.Component(jcalData);
-
   const events = comp.getAllSubcomponents("vevent");
 
-  let parsedEvents = events.map(ev => {
-
+  let parsed = events.map(ev => {
     const e = new ICAL.Event(ev);
-
     const summary = e.summary.replaceAll("MBeeBallU12-1", "").trim();
-
     const teams = summary.split("-").map(s => s.trim());
-
-    let isHome = false;
-
-    if (teams.length > 1) {
-      isHome = teams[0].includes("The Bears");
-    }
-
+    const isHome = teams.length > 1 && teams[0].includes("The Bears");
     return {
       summary,
       date: e.startDate.toJSDate(),
-      isHome
+      isHome,
+      location: e.location || null,
+      special: false,
     };
   });
 
-  // 🔥 HARD CODE EVENT (7 juni)
-  parsedEvents.push({
-    summary: "Landelijke Beeball Dag – Hoofddorp",
+  // Extra hard-coded event
+  parsed.push({
+    summary: "Landelijke Beeball Dag",
     date: new Date("2026-06-07T10:00:00"),
     isHome: false,
-    location: "Sportpark 21, Nieuwe Molenaarslaan 10, 2134 AS Hoofddorp"
+    location: "Sportpark 21, Nieuwe Molenaarslaan 10, 2134 AS Hoofddorp",
+    special: true,
   });
 
-  parsedEvents.sort((a, b) => a.date - b.date);
-
-  const now = new Date();
-  const nextGame = parsedEvents.find(e => e.date > now);
-
-  if (nextGame) {
-    document.getElementById("next").innerHTML = `
-      <div class="next">
-        <small>Volgende wedstrijd</small>
-        <strong>${nextGame.summary}</strong><br>
-        ${nextGame.date.toLocaleDateString("nl-NL")} —
-        ${nextGame.date.toLocaleTimeString("nl-NL", {
-          hour: "2-digit",
-          minute: "2-digit"
-        })}
-      </div>
-    `;
-  }
-
-  const container = document.getElementById("wedstrijden");
-
-  parsedEvents.forEach(item => {
-
-    const d = item.date;
-
-    const month = d.toLocaleDateString("nl-NL", { month: "short" });
-    const day = d.getDate();
-
-    const isNext = nextGame && item.date.getTime() === nextGame.date.getTime();
-
-    const mapsQuery = item.location
-      ? item.location
-      : item.summary;
-
-    const mapsLink =
-      "https://www.google.com/maps/search/?api=1&query=" +
-      encodeURIComponent(mapsQuery);
-
-    const div = document.createElement("div");
-    div.className = "wedstrijd" + (isNext ? " highlight" : "");
-
-    div.innerHTML = `
-      <div class="datebox">
-        <div class="day">${day}</div>
-        <div class="month">${month}</div>
-      </div>
-
-      <div class="content">
-        <div class="time">
-          ${d.toLocaleTimeString("nl-NL", {
-            hour: "2-digit",
-            minute: "2-digit"
-          })}
-        </div>
-
-        <div class="title">${item.summary}</div>
-
-        <div class="badge ${item.isHome ? "home" : "away"}">
-          ${item.isHome ? "Thuis" : "Uit"}
-        </div>
-
-        ${item.location ? `
-          <div class="loc" onclick="window.open('${mapsLink}', '_blank')">
-            📍 ${item.location}
-          </div>
-        ` : `
-          <div class="loc" onclick="window.open('${mapsLink}', '_blank')">
-            📍 Open in Google Maps
-          </div>
-        `}
-      </div>
-    `;
-
-    container.appendChild(div);
-  });
+  parsed.sort((a, b) => a.date - b.date);
+  state.matches = parsed;
 }
 
-loadCalendar();
+// ═══════════════════════════════════════════════════════════════
+// LOGIN FLOW
+// ═══════════════════════════════════════════════════════════════
+async function tryLogin(pin) {
+  const result = await api("login", { pin });
+  if (result.ok) {
+    state.pin = pin;
+    state.user = result.user;
+    if (result.user.isAdmin) state.allChildren = result.allChildren || [];
+    localStorage.setItem("beeball_pin", pin);
+    return true;
+  }
+  return false;
+}
+
+function showLogin(errorMsg = "") {
+  document.getElementById("pinError").textContent = errorMsg;
+  document.getElementById("loginModal").classList.add("show");
+  setTimeout(() => document.getElementById("pinInput").focus(), 100);
+}
+
+function hideLogin() {
+  document.getElementById("loginModal").classList.remove("show");
+  document.getElementById("pinInput").value = "";
+  document.getElementById("pinError").textContent = "";
+}
+
+function logout() {
+  localStorage.removeItem("beeball_pin");
+  state.pin = null;
+  state.user = null;
+  state.attendance = {};
+  renderUserbar();
+  renderMatches();
+  showLogin();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// LOAD ATTENDANCE
+// ═══════════════════════════════════════════════════════════════
+async function loadAttendance() {
+  if (!state.pin) return;
+  const result = await api("getAttendance", { pin: state.pin });
+  if (result.ok) {
+    state.attendance = result.attendance || {};
+  }
+}
+
+async function setAttendance(matchObj, child, status, btnEl) {
+  const mId = matchId(matchObj);
+  const oldStatus = (state.attendance[mId] || {})[child];
+
+  // optimistic update
+  state.attendance[mId] = state.attendance[mId] || {};
+  state.attendance[mId][child] = status;
+  renderMatches();
+
+  btnEl?.classList.add("saving");
+  const result = await api("setAttendance", {
+    pin: state.pin,
+    matchId: mId,
+    matchName: matchObj.summary,
+    matchDate: matchObj.date.toISOString(),
+    child,
+    status,
+  });
+
+  if (!result.ok) {
+    // revert
+    if (oldStatus) state.attendance[mId][child] = oldStatus;
+    else delete state.attendance[mId][child];
+    renderMatches();
+    toast("⚠ Opslaan mislukt");
+  } else {
+    toast("✓ Opgeslagen");
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════
+function renderUserbar() {
+  const bar = document.getElementById("userbar");
+  if (!state.user) {
+    bar.className = "userbar guest";
+    bar.innerHTML = `
+      <div class="who">Niet ingelogd<small>Login om aanwezigheid door te geven</small></div>
+      <button onclick="showLogin()">Inloggen</button>
+    `;
+    return;
+  }
+  if (state.user.isAdmin) {
+    bar.className = "userbar admin";
+    bar.innerHTML = `
+      <div class="who">${state.user.naam} <small>Coach · Admin-weergave</small></div>
+      <button onclick="logout()">Uitloggen</button>
+    `;
+    return;
+  }
+  bar.className = "userbar";
+  const kids = state.user.kinderen.join(" · ");
+  bar.innerHTML = `
+    <div class="who">${state.user.naam}<small>${kids}</small></div>
+    <button onclick="logout()">Uitloggen</button>
+  `;
+}
+
+function renderNext() {
+  const now = new Date();
+  const next = state.matches.find(m => m.date > now);
+  const target = document.getElementById("next");
+  if (!next) {
+    target.innerHTML = "";
+    return;
+  }
+  const dateStr = next.date.toLocaleDateString("nl-NL", {
+    weekday: "long", day: "numeric", month: "long"
+  });
+  const timeStr = next.date.toLocaleTimeString("nl-NL", {
+    hour: "2-digit", minute: "2-digit"
+  });
+  target.innerHTML = `
+    <div class="next-hero">
+      <div class="label">Volgende wedstrijd</div>
+      <div class="match-title">${next.summary}</div>
+      <div class="match-meta">
+        <span>📅 ${dateStr}</span>
+        <span>🕒 ${timeStr}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderMatches() {
+  const container = document.getElementById("matches");
+  const now = new Date();
+  const upcoming = state.matches.filter(m => m.date > new Date(now - 6*60*60*1000));
+
+  if (upcoming.length === 0) {
+    container.innerHTML = `<div class="empty">Geen aankomende wedstrijden</div>`;
+    return;
+  }
+
+  const nextMatch = state.matches.find(m => m.date > now);
+
+  let html = `<div class="section-title">Aankomende wedstrijden</div>`;
+
+  upcoming.forEach(m => {
+    const mId = matchId(m);
+    const isNext = nextMatch && m.date.getTime() === nextMatch.date.getTime();
+    const d = m.date;
+    const day = d.getDate();
+    const month = d.toLocaleDateString("nl-NL", { month: "short" }).replace(".", "");
+    const weekday = d.toLocaleDateString("nl-NL", { weekday: "short" }).replace(".", "");
+    const time = d.toLocaleTimeString("nl-NL", { hour: "2-digit", minute: "2-digit" });
+
+    const mapsQuery = m.location || m.summary;
+    const mapsLink = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(mapsQuery);
+
+    let badge = "";
+    if (m.special) badge = `<span class="badge special">⭐ Speciaal</span>`;
+    else badge = m.isHome
+      ? `<span class="badge home">🏠 Thuis</span>`
+      : `<span class="badge away">✈ Uit</span>`;
+
+    let attendanceBlock = "";
+    if (state.user && !state.user.isAdmin) {
+      attendanceBlock = renderParentAttendance(m, mId);
+    } else if (state.user && state.user.isAdmin) {
+      attendanceBlock = renderAdminAttendance(m, mId);
+    }
+
+    html += `
+      <div class="match ${isNext ? "highlight" : ""}">
+        <div class="match-head">
+          <div class="datebox">
+            <div class="weekday">${weekday}</div>
+            <div class="day">${day}</div>
+            <div class="month">${month}</div>
+          </div>
+          <div class="match-info">
+            <div class="time">${time}</div>
+            <div class="title">${m.summary}</div>
+            <div class="badges">${badge}</div>
+            <a class="loc" href="${mapsLink}" target="_blank" rel="noopener">
+              📍 ${m.location || "Open in Google Maps"}
+            </a>
+          </div>
+        </div>
+        ${attendanceBlock}
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function renderParentAttendance(match, mId) {
+  const att = state.attendance[mId] || {};
+  let html = `<div class="attendance">`;
+  state.user.kinderen.forEach(kind => {
+    const status = att[kind];
+    html += `
+      <div class="att-child">
+        <div class="att-name">${kind}</div>
+        <div class="att-buttons">
+          <button class="att-btn yes ${status === "ja" ? "active" : ""}"
+            data-mid="${mId}" data-kind="${kind}" data-status="ja">
+            ✓ Ja
+          </button>
+          <button class="att-btn maybe ${status === "misschien" ? "active" : ""}"
+            data-mid="${mId}" data-kind="${kind}" data-status="misschien">
+            ? Misschien
+          </button>
+          <button class="att-btn no ${status === "nee" ? "active" : ""}"
+            data-mid="${mId}" data-kind="${kind}" data-status="nee">
+            ✗ Nee
+          </button>
+        </div>
+      </div>
+    `;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderAdminAttendance(match, mId) {
+  const att = state.attendance[mId] || {};
+  const yes = [], no = [], maybe = [];
+  state.allChildren.forEach(kind => {
+    const s = att[kind];
+    if (s === "ja") yes.push(kind);
+    else if (s === "nee") no.push(kind);
+    else if (s === "misschien") maybe.push(kind);
+  });
+  const none = state.allChildren.filter(k => !att[k]);
+
+  return `
+    <div class="admin-summary">
+      <div class="admin-row yes">
+        <span class="dot"></span>
+        <span class="count">${yes.length}</span>
+        <span class="names">${yes.join(", ") || "—"}</span>
+      </div>
+      <div class="admin-row maybe">
+        <span class="dot"></span>
+        <span class="count">${maybe.length}</span>
+        <span class="names">${maybe.join(", ") || "—"}</span>
+      </div>
+      <div class="admin-row no">
+        <span class="dot"></span>
+        <span class="count">${no.length}</span>
+        <span class="names">${no.join(", ") || "—"}</span>
+      </div>
+      <div class="admin-row none">
+        <span class="dot"></span>
+        <span class="count">${none.length}</span>
+        <span class="names">Nog niet gereageerd: ${none.join(", ") || "—"}</span>
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// EVENTS
+// ═══════════════════════════════════════════════════════════════
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".att-btn");
+  if (btn && !btn.classList.contains("saving")) {
+    const mId = btn.dataset.mid;
+    const kind = btn.dataset.kind;
+    const status = btn.dataset.status;
+    const match = state.matches.find(m => matchId(m) === mId);
+    if (match) setAttendance(match, kind, status, btn);
+  }
+});
+
+document.getElementById("pinSubmit").addEventListener("click", async () => {
+  const pin = document.getElementById("pinInput").value.trim().toUpperCase();
+  if (!pin) return;
+  document.getElementById("pinError").textContent = "";
+  const ok = await tryLogin(pin);
+  if (ok) {
+    hideLogin();
+    await loadAttendance();
+    renderUserbar();
+    renderMatches();
+    toast(`Welkom ${state.user.naam}!`);
+  } else {
+    document.getElementById("pinError").textContent =
+      "Code niet herkend. App de coach voor een nieuwe code.";
+  }
+});
+
+document.getElementById("pinInput").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") document.getElementById("pinSubmit").click();
+});
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+async function init() {
+  await loadCalendar();
+  renderNext();
+
+  if (state.pin) {
+    const ok = await tryLogin(state.pin);
+    if (ok) {
+      await loadAttendance();
+    } else {
+      localStorage.removeItem("beeball_pin");
+      state.pin = null;
+    }
+  }
+
+  renderUserbar();
+  renderMatches();
+
+  if (!state.user) {
+    // Niet-ingelogd: schema tonen, login niet forceren — gebruiker kan klikken op "Inloggen"
+  }
+}
+
+init();
 </script>
 
 </body>
