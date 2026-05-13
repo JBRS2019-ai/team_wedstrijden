@@ -44,7 +44,7 @@
 async function loadCalendar() {
 
   const url =
-    "https://api.foys.io/competition/public-api/v1/teams/1ee7d4f7-92fc-40ac-b0c1-f744d3b7d7f6/ics";
+    "https://corsproxy.io/?https://api.foys.io/competition/public-api/v1/teams/1ee7d4f7-92fc-40ac-b0c1-f744d3b7d7f6/ics";
 
   const response = await fetch(url);
   const icsText = await response.text();
@@ -54,43 +54,43 @@ async function loadCalendar() {
 
   const events = comp.getAllSubcomponents("vevent");
 
+  const parsedEvents = events.map(ev => {
+
+    const e = new ICAL.Event(ev);
+
+    return {
+      summary: e.summary
+        .replaceAll("MBeeBallU12-1", "")
+        .trim(),
+
+      date: e.startDate.toJSDate()
+    };
+  });
+
+  parsedEvents.sort((a, b) => a.date - b.date);
+
   const container = document.getElementById("wedstrijden");
 
-  events.forEach(event => {
+  parsedEvents.forEach(item => {
 
-    const parsedEvents = events.map(ev => {
-  const e = new ICAL.Event(ev);
+    const div = document.createElement("div");
 
-  return {
-    summary: e.summary
-      .replaceAll("MBeeBallU12-1", "")
-      .trim(),
-    date: e.startDate.toJSDate()
-  };
-});
+    div.className = "wedstrijd";
 
-parsedEvents.sort((a, b) => a.date - b.date);
+    div.innerHTML = `
+      <div class="datum">
+        ${item.date.toLocaleDateString("nl-NL")} —
+        ${item.date.toLocaleTimeString("nl-NL", {
+          hour: "2-digit",
+          minute: "2-digit"
+        })}
+      </div>
 
-parsedEvents.forEach(item => {
+      <div>${item.summary}</div>
+    `;
 
-  const div = document.createElement("div");
-
-  div.className = "wedstrijd";
-
-  div.innerHTML = `
-    <div class="datum">
-      ${item.date.toLocaleDateString("nl-NL")} —
-      ${item.date.toLocaleTimeString("nl-NL", {
-        hour: "2-digit",
-        minute: "2-digit"
-      })}
-    </div>
-
-    <div>${item.summary}</div>
-  `;
-
-  container.appendChild(div);
-});
+    container.appendChild(div);
+  });
 }
 
 loadCalendar();
