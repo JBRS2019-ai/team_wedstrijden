@@ -83,7 +83,7 @@
     .loc {
       font-size: 12px;
       color: #666;
-      margin-top: 4px;
+      margin-top: 6px;
       cursor: pointer;
     }
 
@@ -129,11 +129,12 @@ async function loadCalendar() {
     };
   });
 
-  // hardcoded event
+  // 🔥 HARD CODE EVENT (7 juni)
   parsedEvents.push({
     summary: "Landelijke Beeball Dag – Hoofddorp",
     date: new Date("2026-06-07T10:00:00"),
-    isHome: true
+    isHome: true,
+    location: "Sportpark 21, Nieuwe Molenaarslaan 10, 2134 AS Hoofddorp"
   });
 
   parsedEvents.sort((a, b) => a.date - b.date);
@@ -148,7 +149,10 @@ async function loadCalendar() {
         <small>Volgende wedstrijd</small>
         <strong>${nextGame.summary}</strong><br>
         ${nextGame.date.toLocaleDateString("nl-NL")} —
-        ${nextGame.date.toLocaleTimeString("nl-NL", { hour:"2-digit", minute:"2-digit" })}
+        ${nextGame.date.toLocaleTimeString("nl-NL", {
+          hour: "2-digit",
+          minute: "2-digit"
+        })}
       </div>
     `;
   }
@@ -164,10 +168,11 @@ async function loadCalendar() {
 
     const isNext = nextGame && item.date.getTime() === nextGame.date.getTime();
 
+    const mapsLink = "https://www.google.com/maps/search/?api=1&query=" +
+      encodeURIComponent(item.location || item.summary);
+
     const div = document.createElement("div");
     div.className = "wedstrijd" + (isNext ? " highlight" : "");
-
-    const mapsLink = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(item.summary);
 
     div.innerHTML = `
       <div class="datebox">
@@ -189,9 +194,11 @@ async function loadCalendar() {
           ${item.isHome ? "Thuis" : "Uit"}
         </div>
 
-        <div class="loc" onclick="window.open('${mapsLink}', '_blank')">
-          📍 Open in Google Maps
-        </div>
+        ${item.location ? `
+          <div class="loc" onclick="window.open('${mapsLink}', '_blank')">
+            📍 ${item.location}
+          </div>
+        ` : ""}
       </div>
     `;
 
