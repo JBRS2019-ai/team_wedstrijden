@@ -592,28 +592,28 @@
 
 <script>
 // ═══════════════════════════════════════════════════════════════
-// CONFIGURATIE — vul hier de URL van je Apps Script Web App in
+// CONFIGURATIE
 // ═══════════════════════════════════════════════════════════════
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwSq3txRAtnmWKN573wDBl-EGRtglUzEWmFDO7kwy5EgklsWBSeA2CMCjdIq8FMA_4v9Q/exec";
 
-const ICAL_URL = "https://corsproxy.io/?https://api.foys.io/competition/public-api/v1/teams/1ee7d4f7-92fc-40ac-b0c1-f744d3b7d7f6/ics";
+// ✅ GEFIXT: corsproxy.io vervangen door allorigins.win — werkt op alle domeinen
+const ICAL_URL = "https://api.allorigins.win/raw?url=https://api.foys.io/competition/public-api/v1/teams/1ee7d4f7-92fc-40ac-b0c1-f744d3b7d7f6/ics";
 
 // ═══════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════
 let state = {
   pin: localStorage.getItem("beeball_pin") || null,
-  user: null,                 // {naam, kinderen:[], isAdmin}
-  matches: [],                // alle wedstrijden
-  attendance: {},             // {matchId: {childName: status}}
-  allChildren: [],            // voor admin: alle kinderen in team
+  user: null,
+  matches: [],
+  attendance: {},
+  allChildren: [],
 };
 
 // ═══════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════
 function matchId(m) {
-  // stabiele ID: datum-ISO + eerste 30 chars van titel
   return m.date.toISOString().slice(0,16) + "::" + m.summary.slice(0,30);
 }
 
@@ -633,7 +633,6 @@ async function api(action, payload = {}) {
   try {
     const res = await fetch(APPS_SCRIPT_URL, {
       method: "POST",
-      // text/plain om CORS-preflight te vermijden bij Apps Script
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ action, ...payload }),
     });
@@ -668,7 +667,6 @@ async function loadCalendar() {
     };
   });
 
-  // Extra hard-coded event
   parsed.push({
     summary: "Landelijke Beeball Dag",
     date: new Date("2026-06-07T10:00:00"),
@@ -733,7 +731,6 @@ async function setAttendance(matchObj, child, status, btnEl) {
   const mId = matchId(matchObj);
   const oldStatus = (state.attendance[mId] || {})[child];
 
-  // optimistic update
   state.attendance[mId] = state.attendance[mId] || {};
   state.attendance[mId][child] = status;
   renderMatches();
@@ -749,7 +746,6 @@ async function setAttendance(matchObj, child, status, btnEl) {
   });
 
   if (!result.ok) {
-    // revert
     if (oldStatus) state.attendance[mId][child] = oldStatus;
     else delete state.attendance[mId][child];
     renderMatches();
@@ -829,7 +825,6 @@ function renderMatches() {
   }
 
   const nextMatch = state.matches.find(m => m.date > now);
-
   let html = `<div class="section-title">Aankomende wedstrijden</div>`;
 
   upcoming.forEach(m => {
@@ -853,14 +848,8 @@ function renderMatches() {
     let attendanceBlock = "";
     if (state.user) {
       const hasOwnKids = state.user.kinderen && state.user.kinderen.length > 0;
-      // Iedereen met eigen kinderen krijgt invul-knoppen
-      if (hasOwnKids) {
-        attendanceBlock += renderParentAttendance(m, mId);
-      }
-      // Admin krijgt daarnaast het team-overzicht
-      if (state.user.isAdmin) {
-        attendanceBlock += renderAdminAttendance(m, mId);
-      }
+      if (hasOwnKids) attendanceBlock += renderParentAttendance(m, mId);
+      if (state.user.isAdmin) attendanceBlock += renderAdminAttendance(m, mId);
     }
 
     html += `
@@ -1009,10 +998,6 @@ async function init() {
 
   renderUserbar();
   renderMatches();
-
-  if (!state.user) {
-    // Niet-ingelogd: schema tonen, login niet forceren — gebruiker kan klikken op "Inloggen"
-  }
 }
 
 init();
